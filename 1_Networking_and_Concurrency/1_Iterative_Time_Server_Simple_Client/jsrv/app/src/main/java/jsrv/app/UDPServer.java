@@ -46,11 +46,11 @@ public class UDPServer {
                 } else{
                     System.out.println("Please provide a proper argument");
                 }
-
                 DatagramPacket reply = new DatagramPacket(dataBytes, length, request.getAddress(), request.getPort());
-                    
-
+                
+                
                 aSocket.send(reply);
+                buffer = new byte[1000];
             }
         } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());

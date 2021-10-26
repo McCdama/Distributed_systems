@@ -3,63 +3,69 @@ package jsrv.app;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 
 public class TCPServer {
-    public static void main(String args[]) {
+
+    private static final String SERVER_IP = "127.0.0.1";
+    public static final int PORT = 9090;
+
+    private static final int SERVER_READY = 0;
+    private static final int CORRECT_GUESS = 1;
+    private static final int INCORRECT_GUESS = 2;
+    private static final int GAME_OVER = 9;
+
+    public static void main(String args[]) throws IOException {
+        ServerSocket listener = new ServerSocket(PORT);
+        System.out.println("[Server] Waiting for connection");
+        Socket client = listener.accept();
+        System.out.println("[Server] Connected to the Client");
+        System.out.println("[Server] SERVER_READY");
+
+        OutputStream out = client.getOutputStream();
+        InputStream in = client.getInputStream();
+
         try {
-            boolean correcto = true;
-            Random rand = new Random();
-            int number, sonuc, number2, counter = 0;
-            number2 = rand.nextInt(10) + 1;
-            ServerSocket s1 = new ServerSocket(8080);
-            Socket ss = s1.accept();
-            Scanner sc = new Scanner(ss.getInputStream());
-            while (correcto) {
-                InputStream in = ss.getInputStream();
-                BufferedReader bin = new BufferedReader(new InputStreamReader(in));
+            while (true) {
+                Random random = new Random();
+                int randomNumber = random.nextInt(9);
+                int attemp = 0;
 
-                number = Integer.parseInt(bin.readLine());
+                while (attemp != 3) {
+                    attemp++;
+                    out.write(SERVER_READY);
 
-                if (counter == 2 && number != number2) {
-                    sonuc = 4;
+                    int request = in.read();
 
-                    PrintWriter pout = new PrintWriter(ss.getOutputStream(), true);
-                    pout.println(sonuc);
-                    correcto = false;
-                }
-
-                if (number == number2) {
-                    sonuc = 1;
-
-                    PrintWriter pout = new PrintWriter(ss.getOutputStream(), true);
-                    pout.println(sonuc);
-                    correcto = false;
-                }
-
-                else if (number > number2) {
-                    sonuc = 3;
-                    counter++;
-                    PrintWriter pout = new PrintWriter(ss.getOutputStream(), true);
-                    pout.println(sonuc);
-                }
-
-                else if (number < number2) {
-                    sonuc = 2;
-                    counter++;
-                    PrintWriter pout = new PrintWriter(ss.getOutputStream(), true);
-                    pout.println(sonuc);
-                }
+                    if (randomNumber != request) {
+                        switch (request) {
+                        case INCORRECT_GUESS:
+                            out.write(INCORRECT_GUESS);
+                            break;
+                        case CORRECT_GUESS:
+                        out.write(CORRECT_GUESS);
+                        }
+                    } else {
+                        out.write(CORRECT_GUESS);
+                    }
+                } 
             }
-            ss.close();
-        } catch (Exception e) {
-            System.out.println("Listen :" + e.getMessage());
+        } finally {
+            out.close();
+            in.close();
         }
     }
+
 }

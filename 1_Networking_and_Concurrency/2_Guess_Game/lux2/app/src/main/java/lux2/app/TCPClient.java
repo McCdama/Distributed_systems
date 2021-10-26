@@ -8,6 +8,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -15,40 +17,42 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class TCPClient {
+    private static final String SERVER_IP = "127.0.0.1";
+    public static final int SERVER_PORT = 9090;
+
+    private static final int SERVER_READY = 0;
+    private static final int CORRECT_GUESS = 1;
+    private static final int INCORRECT_GUESS = 2;
+    private static final int GAME_OVER = 9;
+
     public static void main(String args[]) throws UnknownHostException, IOException {
-        // arguments supply message and hostname of destination
-        int number, sonuc;
-        boolean correct = true;
-        Scanner sc = new Scanner(System.in);
-        Socket s = new Socket("127.0.0.1", 8080);
-        Scanner sc1 = new Scanner(s.getInputStream());
-        while (correct) {
+        Socket socket = new Socket(SERVER_IP, SERVER_PORT);
 
-            System.out.println("Enter a number between 1-10");
-            number = sc.nextInt();
+        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 
-            PrintWriter pout = new PrintWriter(s.getOutputStream(), true);
-            pout.println(number);
+        OutputStream out = new DataOutputStream(socket.getOutputStream());
 
-            InputStream in = s.getInputStream();
-            BufferedReader bin = new BufferedReader(new InputStreamReader(in));
-            sonuc = Integer.parseInt(bin.readLine());
-            if (sonuc == 1) {
-                System.out.println("You win!");
-                correct = false;
-            } else if (sonuc == 2) {
-                System.out.println("Increase!");
+        GAME: // outer
+        while (true) {
+            System.out.println("> ");
 
-            } else if (sonuc == 3) {
-                System.out.println("Decrease!");
-            }
+            int command = Integer.parseInt(keyboard.readLine());
+            out.write(command);
+            int serverResponse = input.read();
+            System.out.println("Server Respond " + serverResponse);
 
-            if (sonuc == 4) {
-                System.out.println("You Lost!");
-                correct = false;
+            switch (serverResponse) {
+             case CORRECT_GUESS:
+                System.out.println("You've won");
+                break GAME;
+             case INCORRECT_GUESS:
+                System.out.println("Try again");
+                
+
+
             }
         }
-        s.close();
 
     }
 }
