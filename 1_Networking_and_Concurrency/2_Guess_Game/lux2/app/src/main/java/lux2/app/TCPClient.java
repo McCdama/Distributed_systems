@@ -25,7 +25,7 @@ public class TCPClient {
     private static final int CORRECT_GUESS = 1;
     private static final int INCORRECT_GUESS = 2;
     private static final int GAME_OVER = 9;
-    private static int attemp = 0;
+    private static int ATTEMPT = 0;
 
 
     public static void main(String args[]) throws UnknownHostException, IOException {
@@ -36,7 +36,7 @@ public class TCPClient {
 
         OutputStream out = new DataOutputStream(socket.getOutputStream());
 
-
+        UPPER_OUTER:
         while (true) {
             System.out.println("> ");
 
@@ -56,22 +56,17 @@ public class TCPClient {
                     break;
                 case CORRECT_GUESS:
                     System.out.println("You've won");
-                    break GAME;
+                    break UPPER_OUTER;
                 case INCORRECT_GUESS:
-                if (attemp <= 3){
                     System.out.println("Try again");
-                    attemp++;
-                    break;
-                }
-                case GAME_OVER:
-                if (attemp == 3){
-                    System.out.println("GAME_OVER");
-                    break GAME;
+                    ATTEMPT++;
+                    if (ATTEMPT==3) {
+                        break UPPER_OUTER;
+                    } else {
+                        break;
+                    }
                 }
             }
-        }
-        System.out.println("Finished Game...");
-        socket.close();
 
     }
 }

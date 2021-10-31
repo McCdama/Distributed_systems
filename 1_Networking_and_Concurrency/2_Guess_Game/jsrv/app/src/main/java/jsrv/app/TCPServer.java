@@ -29,31 +29,35 @@ public class TCPServer {
 
         OutputStream out = client.getOutputStream();
         InputStream in = client.getInputStream();
-        out.write(SERVER_READY);
+        // out.write(SERVER_READY);
         random = new Random();
         randomNumber = random.nextInt(9) + 1;
         System.out.println("Generated Random Number: " + randomNumber);
         try {
-            while (true) {
-                GAME:
-                while (attemp < 3) {
+            UPPER_OUTER: while (true) {
+                GAME: while (attemp <= 3) {
                     int request = in.read();
                     System.out.println("[Client sends]: " + request);
                     if (randomNumber != request) {
                         out.write(INCORRECT_GUESS);
                         attemp++;
-                        if (attemp==3){
-                            break GAME;
-                        }
-                    } else if (randomNumber == request) {
+                        break;
+                    } else {
                         out.write(CORRECT_GUESS);
-                        break GAME;
-                    } else{
-                        out.write(GAME_OVER);
+                        attemp = 3;
                         break GAME;
                     }
                 }
+                if (attemp == 3) {
+                    System.out.println("---DONE---");
+                    out.write(GAME_OVER);
+                    break UPPER_OUTER;
+                }
             }
+            in.close();
+            out.close();
+            client.close();
+
         } catch (IOException e) {
             System.out.println("Exception: " + e.getMessage());
         }
