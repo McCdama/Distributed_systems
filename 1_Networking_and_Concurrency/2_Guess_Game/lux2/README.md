@@ -1,1 +1,1 @@
-gradle run --args="salut 127.0.0.1"
+gradle run --args="0 localhost"

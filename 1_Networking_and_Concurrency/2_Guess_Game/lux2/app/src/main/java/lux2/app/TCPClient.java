@@ -1,72 +1,60 @@
 package lux2.app;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.Console;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Random;
 import java.util.Scanner;
 
 public class TCPClient {
     private static final String SERVER_IP = "127.0.0.1";
     public static final int SERVER_PORT = 9090;
 
-    private static final int SERVER_READY = 0;
+    public static final int START_GAME = 0;
+    public static final int GAME_STARTED = 0;
     private static final int CORRECT_GUESS = 1;
     private static final int INCORRECT_GUESS = 2;
     private static final int GAME_OVER = 9;
-    private static int ATTEMPT = 0;
 
+    public static void main(String args[]) {
 
-    public static void main(String args[]) throws UnknownHostException, IOException {
-        Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+        Scanner keyboard = new Scanner(System.in);
 
-        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
+        try (Socket socket = new Socket(SERVER_IP, SERVER_PORT)) {
 
-        OutputStream out = new DataOutputStream(socket.getOutputStream());
+            InputStream in = socket.getInputStream();
+            OutputStream out = socket.getOutputStream();
 
-        UPPER_OUTER:
-        while (true) {
-            System.out.println("> ");
-
-            int command = Integer.parseInt(keyboard.readLine());
-            if (command == 112) break;
-            
-  
-                out.write(command);
-                int serverResponse = input.read();
+            out.write(START_GAME);
+            int recievedCode = in.read();
+            if (recievedCode == GAME_STARTED) {
+                System.out.println("let's go mon soleil..");
+            } else {
+                throw new IllegalStateException("Not in sync..");
+            }
+            UPPER_OUTER: while (true) {
+                System.out.println("Enter guess number btw 0 and 9");
+                System.out.println("> ");
+                String clientInput = keyboard.nextLine();
+                out.write(Integer.parseInt(clientInput));
+                int serverResponse = in.read();
                 System.out.println("ServerResponse: " + serverResponse);
-
-                
-                GAME:
                 switch (serverResponse) {
-                case SERVER_READY:
-                    System.out.println("SERVER READY");
-                    break;
                 case CORRECT_GUESS:
                     System.out.println("You've won");
                     break UPPER_OUTER;
                 case INCORRECT_GUESS:
                     System.out.println("Try again");
-                    ATTEMPT++;
-                    if (ATTEMPT==3) {
-                        break UPPER_OUTER;
-                    } else {
-                        break;
-                    }
+                    break;
+                case GAME_OVER:
+                    System.out.println("You've lost!");
+                    break UPPER_OUTER;
                 }
             }
-
+        } catch (IOException e) {
+            System.err.println("Server stops");
+            e.printStackTrace();
+        }
+        keyboard.close();
     }
 }

@@ -9,57 +9,59 @@ import java.util.Random;
 
 public class TCPServer {
 
-    // private static final String SERVER_IP = "127.0.0.1";
     public static final int PORT = 9090;
-
     private static final int SERVER_READY = 0;
+    private static final int START_GAME = 0;
     private static final int CORRECT_GUESS = 1;
     private static final int INCORRECT_GUESS = 2;
     private static final int GAME_OVER = 9;
+    private static final Random RANDOM = new Random();
+    static int MAX_ATTEMPTS = 3;
 
-    static Random random;
-    static int attemp = 0;
-    static int randomNumber;
+    public static void main(String args[]) {
+        try (ServerSocket listener = new ServerSocket(PORT)) {
 
-    public static void main(String args[]) throws IOException {
-        ServerSocket listener = new ServerSocket(PORT);
-        System.out.println("[Server] Waiting for connection");
-        Socket client = listener.accept();
-        System.out.println("[Server] Connected to the Client");
+            System.out.println("[Server] Waiting for connection");
+            while (true) {
+                Socket client = listener.accept();
+                System.out.println("[Server] Connected to the Client");
 
-        OutputStream out = client.getOutputStream();
-        InputStream in = client.getInputStream();
-        // out.write(SERVER_READY);
-        random = new Random();
-        randomNumber = random.nextInt(9) + 1;
-        System.out.println("Generated Random Number: " + randomNumber);
-        try {
-            UPPER_OUTER: while (true) {
-                GAME: while (attemp <= 3) {
-                    int request = in.read();
-                    System.out.println("[Client sends]: " + request);
-                    if (randomNumber != request) {
-                        out.write(INCORRECT_GUESS);
-                        attemp++;
-                        break;
-                    } else {
-                        out.write(CORRECT_GUESS);
-                        attemp = 3;
-                        break GAME;
+                InputStream in = client.getInputStream();
+                OutputStream out = client.getOutputStream();
+
+                int recievedCode = in.read();
+                if (recievedCode == START_GAME) {
+                    System.out.println("let's go mon soleil..");
+                    int attempts = 0;
+                    int generatedRandom = RANDOM.nextInt(10);
+                    System.out.println("Generated Random Number: " + generatedRandom);
+                    out.write(SERVER_READY);
+                    while (true) {
+                        int request = in.read();
+                        System.out.println("[Client sends]: " + request);
+                        if (generatedRandom == request) {
+                            out.write(CORRECT_GUESS);
+                            break;
+                        } else {
+                            attempts++;
+                            if (attempts < MAX_ATTEMPTS) {
+                                out.write(INCORRECT_GUESS);
+                            } else {
+                                out.write(GAME_OVER);
+                                break;
+                            }
+                        }
                     }
-                }
-                if (attemp == 3) {
                     System.out.println("---DONE---");
-                    out.write(GAME_OVER);
-                    break UPPER_OUTER;
+                    attempts = 0;
+                } else {
+                    System.err.println("Closing Connenction! .. unresolved code");
                 }
+                client.close();
             }
-            in.close();
-            out.close();
-            client.close();
-
         } catch (IOException e) {
-            System.out.println("Exception: " + e.getMessage());
+            System.err.println("Exception: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
