@@ -30,7 +30,7 @@ public class CrawlerThread extends Thread {
                 
                 System.out.println("Reading form URL "+nextURL);
                 URL url = new URL(nextURL);
-                System.out.println("URL " + url);
+                //System.out.println("URL " + url.toExternalForm());
                 
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection(); // casting is important
                 System.out.println("Response Message is " + httpURLConnection.getResponseMessage());
@@ -38,7 +38,20 @@ public class CrawlerThread extends Thread {
                 Set<String> hdrKeys = hdrs.keySet();
                 for (String k : hdrKeys)
                   System.out.println("Key: " + k + "  Value: " + hdrs.get(k));
+                
+                
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                StringBuilder stringBuilder = new StringBuilder();
+                String stringBuilderLine = bufferedReader.readLine();
+                while (stringBuilderLine !=null) {
+                    stringBuilder.append(stringBuilderLine);
+                    System.err.println(stringBuilderLine);
+                    stringBuilderLine = bufferedReader.readLine();
+                }
+                
+                
+                
+                
                 
             } catch (IOException e) {
                 System.err.println("Can not read the URL: "+nextURL);
