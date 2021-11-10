@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 public class CrawlerThread extends Thread {
     private Set<String> emails;
@@ -23,7 +25,7 @@ public class CrawlerThread extends Thread {
     }
     @Override
     public void run(){
-        while (!links.isEmpty()) {
+        while (!links.isEmpty()) { // DO_CHECK: isValidURL
             String nextURL = links.remove().trim();
             visited.add(nextURL);
             try {
@@ -48,6 +50,13 @@ public class CrawlerThread extends Thread {
                     System.err.println(stringBuilderLine);
                     stringBuilderLine = bufferedReader.readLine();
                 }
+
+                // LINKS PATTERN AND SEARCHING
+                String patternString = "<a\\s+href\\s*=\\s*(\"[^\"]*\"|[^\\s>]*)\\s*>";
+                Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
+                
+                
+                pattern.matcher(stringBuilder).results().map(MatchResult::group).forEach(System.out::println);
                 
                 
                 
