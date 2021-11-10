@@ -12,9 +12,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class CrawlerThread extends Thread {
     private Set<String> emails;
+    private String patternString = "<a\\s+href\\s*=\\s*(\"[^\"]*\"|[^\\s>]*)\\s*>";
     private Queue<String> links = new LinkedList<>();
     private List<String> visited = new LinkedList<>();
     private String initialURL;
@@ -38,8 +40,8 @@ public class CrawlerThread extends Thread {
                 System.out.println("Response Message is " + httpURLConnection.getResponseMessage());
                 Map<String, List<String>> hdrs = httpURLConnection.getHeaderFields();
                 Set<String> hdrKeys = hdrs.keySet();
-                for (String k : hdrKeys)
-                  System.out.println("Key: " + k + "  Value: " + hdrs.get(k));
+                //for (String k : hdrKeys)
+                  //System.out.println("Key: " + k + "  Value: " + hdrs.get(k));
                 
                 
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
@@ -47,16 +49,16 @@ public class CrawlerThread extends Thread {
                 String stringBuilderLine = bufferedReader.readLine();
                 while (stringBuilderLine !=null) {
                     stringBuilder.append(stringBuilderLine);
-                    System.err.println(stringBuilderLine);
+                    //System.err.println(stringBuilderLine);
                     stringBuilderLine = bufferedReader.readLine();
                 }
 
                 // LINKS PATTERN AND SEARCHING
-                String patternString = "<a\\s+href\\s*=\\s*(\"[^\"]*\"|[^\\s>]*)\\s*>";
                 Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
-                
-                
-                pattern.matcher(stringBuilder).results().map(MatchResult::group).forEach(System.out::println);
+                Stream<MatchResult> matchResult = pattern.matcher(stringBuilder).results();
+
+                matchResult.map(MatchResult::group).forEach(System.out::println);
+
                 
                 
                 
