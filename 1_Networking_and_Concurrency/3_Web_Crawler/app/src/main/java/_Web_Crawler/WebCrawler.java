@@ -8,7 +8,7 @@ public class WebCrawler {
     
     public static void main(String[] args) {
         //String initialURL = args[0];
-        String initialURL = "https://pdos.csail.mit.edu/";
+        String initialURL = "https://pdos.csail.mit.edu";
         Set<String> emails = new HashSet<>();
 
         Thread sThread = new CrawlerThread(emails, initialURL);

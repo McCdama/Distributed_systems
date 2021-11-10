@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -56,8 +57,21 @@ public class CrawlerThread extends Thread {
                 // LINKS PATTERN AND SEARCHING
                 Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
                 Stream<MatchResult> matchResult = pattern.matcher(stringBuilder).results();
-
-                matchResult.map(MatchResult::group).forEach(System.out::println);
+                matchResult.map(MatchResult::group).forEach(System.out::println); // Echo out all pattern matched results!
+                
+                Matcher matcher = pattern.matcher(stringBuilder.toString());
+               while (matcher.find()) {  
+                   String match = matcher.group(1); // <a href = will be neglected
+                   String newURL = null;
+                   if (initialURL.startsWith("/")) {
+                       if (initialURL.endsWith("/")) {
+                           newURL = initialURL + match.substring(1); //cut up
+                       }
+                   } else {
+                       newURL = initialURL + match.substring(1);
+                       System.out.println("NEW: "+newURL);
+                   }
+               }
 
                 
                 
