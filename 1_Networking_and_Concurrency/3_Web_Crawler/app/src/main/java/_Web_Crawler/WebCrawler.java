@@ -7,18 +7,19 @@ import java.util.Set;
 public class WebCrawler {
     
     public static void main(String[] args) {
-        String initialURL = args[0];
+        //String initialURL = args[0];
+        String initialURL = "https://mki-service.de/";
         Set<String> emails = new HashSet<>();
 
-        //Thread sThread = new CrawlerThread(emails, initialURL);
+        Thread sThread = new CrawlerThread(emails, initialURL);
         //sThread.setDaemon(true);
-        //sThread.start();
+        sThread.start();
 
-        System.out.println("Press <Enter> to stop crawling..");
-        //Scanner keyboard = new Scanner(System.in);
-        //keyboard.nextLine();
+        /* System.out.println("Press <Enter> to stop crawling..");
+        Scanner keyboard = new Scanner(System.in);
+        keyboard.nextLine();
 
-        //System.out.println("Emails: " + emails);
-        //keyboard.close();
+        System.out.println("Emails: " + emails);
+        keyboard.close(); */
     }
 }
