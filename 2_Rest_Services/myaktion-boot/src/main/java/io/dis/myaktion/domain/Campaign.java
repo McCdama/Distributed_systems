@@ -19,6 +19,7 @@ public class Campaign {
     @Id 
     @GeneratedValue
     Long id;
+
     private String name;
     private double donationMinimum;
     private double targetAmount;
@@ -73,6 +74,22 @@ public class Campaign {
 
     public void setDonations(List<Donation> donations) {
         this.donations = donations;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override

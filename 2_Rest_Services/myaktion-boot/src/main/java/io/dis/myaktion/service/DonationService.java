@@ -3,6 +3,7 @@ package io.dis.myaktion.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import io.dis.myaktion.domain.Campaign;
 import io.dis.myaktion.domain.Donation;
@@ -10,6 +11,7 @@ import io.dis.myaktion.exceptions.CampaignNotFoundException;
 import io.dis.myaktion.repository.CampaignRepository;
 import io.dis.myaktion.repository.DonationRepository;
 
+@Service
 public class DonationService {
     @Autowired
     private DonationRepository donationRepository;
