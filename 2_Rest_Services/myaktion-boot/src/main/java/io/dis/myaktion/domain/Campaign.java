@@ -63,13 +63,19 @@ public class Campaign {
     }
 
     // addDonation
+    public List<Donation> getDonations() {
+        return donations;
+    }
+
+    public void setDonations(List<Donation> donations) {
+        this.donations = donations;
+    }
 
     @Override
     public String toString() {
         return "Campaign [donationMinimum=" + donationMinimum + ", name=" + name + ", targetAmount=" + targetAmount
                 + "]";
     }
-    
 }
 
 

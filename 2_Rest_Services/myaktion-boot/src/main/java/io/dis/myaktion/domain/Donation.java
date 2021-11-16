@@ -68,6 +68,12 @@ public class Donation {
         this.status = status;
     }
 
+    public Campaign getCampaign() {
+        return campaign;
+    }
+    public void setCampaign(Campaign campaign) {
+        this.campaign = campaign;
+    }
     @Override
     public String toString() {
         return "Donation [amount=" + amount + ", donorName=" + donorName + ", receiptRequested=" + receiptRequested
