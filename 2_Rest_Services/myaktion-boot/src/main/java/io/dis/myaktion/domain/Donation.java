@@ -27,6 +27,10 @@ public class Donation {
     @ManyToOne
     private Campaign campaign;
 
+    /* @OneToMany
+    (mappedBy = "campaigns", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Donation> donations = new LinkedList<>(); */
+
     
     public Donation(){}    
     public Donation(double amount, boolean receiptRequested, String donorName, Status status){
@@ -36,6 +40,12 @@ public class Donation {
         this.status = Status.IN_PROCESS;
     }
 
+    public Campaign getCampaign() {
+        return campaign;
+    }
+    public void setCampaign(Campaign campaign) {
+        this.campaign = campaign;
+    }
     public double getAmount() {
         return amount;
     }
@@ -68,12 +78,6 @@ public class Donation {
         this.status = status;
     }
 
-    public Campaign getCampaign() {
-        return campaign;
-    }
-    public void setCampaign(Campaign campaign) {
-        this.campaign = campaign;
-    }
     @Override
     public String toString() {
         return "Donation [amount=" + amount + ", donorName=" + donorName + ", receiptRequested=" + receiptRequested

@@ -63,6 +63,10 @@ public class Campaign {
     }
 
     // addDonation
+    public void addDonations(Donation donation) {
+        this.donations.add(donation) ;
+    }
+    
     public List<Donation> getDonations() {
         return donations;
     }
