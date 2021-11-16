@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.dis.myaktion.domain.Campaign;
@@ -17,5 +18,10 @@ public class CampaignController {
      @GetMapping("/campaignes")
      public List<Campaign> getCampaigns(){
          return campaignService.getCampaigns();
+     }
+
+     @GetMapping("/campaignes/{id}")
+     public Campaign getCampaign (@PathVariable Long id){
+         return campaignService.getCampaign(id);
      }
 }

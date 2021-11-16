@@ -2,7 +2,6 @@ package io.dis.myaktion.service;
 
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +21,9 @@ public class CampaignService {
     public List<Campaign> getCampaigns(){
         List<Campaign> campaigns = campaignRepository.findAll();
         return campaigns;
+    }
+
+    public Campaign getCampaign(Long id) {
+        return campaignRepository.findById(id).get();
     }
 }

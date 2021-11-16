@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Donation {
     @Id
@@ -24,6 +26,7 @@ public class Donation {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @JsonIgnore // for the serialization
     @ManyToOne
     private Campaign campaign;
 
@@ -34,7 +37,6 @@ public class Donation {
         this.donorName = donorName;
         this.status = Status.IN_PROCESS;
     }
-
     public Campaign getCampaign() {
         return campaign;
     }

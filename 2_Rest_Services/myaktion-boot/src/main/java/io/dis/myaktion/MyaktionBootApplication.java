@@ -47,6 +47,7 @@ public class MyaktionBootApplication {
 			campaignService.addCampaign(campaign1);
 			// Todo: Logger
 			List<Campaign> campaigns = campaignService.getCampaigns();
+
 			// Todo: Logger
 			System.out.println(campaigns);
 
