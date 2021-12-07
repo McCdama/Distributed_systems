@@ -7,20 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import io.ds.myaktion.domain.Campaign;
 import io.ds.myaktion.domain.CampaignRepository;
 import io.ds.myaktion.domain.Donation;
 import io.ds.myaktion.domain.DonationRepository;
-import io.ds.myaktion.dto.ReducedDonation;
 import io.ds.myaktion.dto.Transaction;
 import io.ds.myaktion.exceptions.CampaignNotFoundException;
 import io.lettuce.core.RedisCommandTimeoutException;
@@ -39,6 +31,15 @@ public class DonationService {
 
     private Logger log = LoggerFactory.getLogger(DonationService.class);
 
+
+    /* 
+        Test the communication!
+        1. Start Redis server
+        2. Start myaktion-bank
+        3. Start myaktion --> Check log of myaktion-bank
+        Add futher donations to test functionality (curl/swagger)
+    
+    */
     public Donation addDonation(Donation donation, Long campaignId) {
         Optional<Campaign> result = campaignRepository.findById(campaignId);
         if (result.isEmpty()) {
