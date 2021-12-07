@@ -7,6 +7,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+
+import io.ds.myaktion.bank.dto.Transaction;
 
 @SpringBootApplication
 public class MyaktionBankApplication {
@@ -22,6 +25,13 @@ public class MyaktionBankApplication {
 		container.setConnectionFactory(connectionFactory);
 		container.addMessageListener(listenerAdapter, new PatternTopic("processTransaction"));
 		return container;
+	}
+
+	@Bean
+	MessageListenerAdapter listenerAdapter(TransactionReceiver receiver) {
+		MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(receiver, "receiveTransaction");
+		messageListenerAdapter.setSerializer(new Jackson2JsonRedisSerializer<>(Transaction.class));
+		return messageListenerAdapter;
 	}
 
 }
