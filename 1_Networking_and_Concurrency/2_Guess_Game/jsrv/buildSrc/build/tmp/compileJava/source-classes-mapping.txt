@@ -1,0 +1,6 @@
+JsrvJavaLibraryConventionsPlugin.java
+ JsrvJavaLibraryConventionsPlugin
+JsrvJavaCommonConventionsPlugin.java
+ JsrvJavaCommonConventionsPlugin
+JsrvJavaApplicationConventionsPlugin.java
+ JsrvJavaApplicationConventionsPlugin
