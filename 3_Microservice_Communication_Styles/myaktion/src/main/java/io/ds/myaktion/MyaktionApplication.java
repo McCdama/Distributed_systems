@@ -99,4 +99,9 @@ public class MyaktionApplication {
 		redisTemplate.afterPropertiesSet();
 		return redisTemplate;
 	}
+
+	@Bean
+	public Jackson2JsonRedisSerializer<Transaction> jackson2JsonRedisSerializer() {
+		return new Jackson2JsonRedisSerializer<>(Transaction.class);
+	}
 }
