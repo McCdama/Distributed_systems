@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import io.ds.myaktion.dto.Transaction;
 import io.ds.myaktion.exceptions.DonationNotFoundException;
 import io.ds.myaktion.services.DonationService;
 

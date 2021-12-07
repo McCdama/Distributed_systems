@@ -11,12 +11,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 import io.ds.myaktion.domain.Account;
 import io.ds.myaktion.domain.Campaign;
 import io.ds.myaktion.domain.Donation;
 import io.ds.myaktion.dto.Transaction;
+import io.ds.myaktion.redis.ProcessedTransactionReceiver;
 import io.ds.myaktion.services.CampaignService;
 import io.ds.myaktion.services.DonationService;
 
@@ -103,5 +107,28 @@ public class MyaktionApplication {
 	@Bean
 	public Jackson2JsonRedisSerializer<Transaction> jackson2JsonRedisSerializer() {
 		return new Jackson2JsonRedisSerializer<>(Transaction.class);
+	}
+
+	// Register receiver object and define topic (subscribe)
+	@Bean
+	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
+			MessageListenerAdapter listenerAdapter) {
+		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		container.addMessageListener(listenerAdapter, new PatternTopic("transactionProcessed"));
+		return container;
+	}
+
+	@Bean
+	MessageListenerAdapter listenerAdapter(ProcessedTransactionReceiver receiver) {
+		MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(receiver,
+				"receiveProcessedTransaction");
+		messageListenerAdapter.setSerializer(new Jackson2JsonRedisSerializer<>(Transaction.class));
+		return messageListenerAdapter;
+	}
+
+	@Bean
+	ProcessedTransactionReceiver receiver() {
+		return new ProcessedTransactionReceiver();
 	}
 }
