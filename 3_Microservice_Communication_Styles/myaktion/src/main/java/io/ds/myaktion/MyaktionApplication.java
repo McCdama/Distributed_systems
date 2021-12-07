@@ -9,10 +9,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 import io.ds.myaktion.domain.Account;
 import io.ds.myaktion.domain.Campaign;
 import io.ds.myaktion.domain.Donation;
+import io.ds.myaktion.dto.Transaction;
 import io.ds.myaktion.services.CampaignService;
 import io.ds.myaktion.services.DonationService;
 
@@ -32,7 +36,7 @@ public class MyaktionApplication {
 
 	@Bean
 	CommandLineRunner initLoggerBean() {
-		return (args)->{
+		return (args) -> {
 			log.info("Adding Sample data to DB");
 			Account account1 = new Account();
 			account1.setName("Jogi Löw");
@@ -64,7 +68,7 @@ public class MyaktionApplication {
 			donation1.setCampaign(campaign1);
 			campaign1.addDonation(donation1);
 
-			//Write campaign to DB
+			// Write campaign to DB
 			log.debug("Add campaign to DB");
 			Campaign savedCampaign = campaignService.addCampaign(campaign1);
 
@@ -75,8 +79,8 @@ public class MyaktionApplication {
 			donation2.setDonorName("Hansi Flick");
 			donation2.setReceiptRequested(true);
 			donation2.setStatus(Donation.Status.IN_PROCESS);
-			
-			log.debug("Add donation of campaign to DB");			
+
+			log.debug("Add donation of campaign to DB");
 			donationService.addDonation(donation2, savedCampaign.getId());
 
 			// Read data from db and print to screen
@@ -84,5 +88,15 @@ public class MyaktionApplication {
 			log.debug("Read all campaigns again");
 			log.trace(campaigns.toString());
 		};
+	}
+
+	@Bean
+	RedisTemplate<String, Transaction> template(RedisConnectionFactory connectionFactory,
+			Jackson2JsonRedisSerializer<Transaction> serializer) {
+		RedisTemplate<String, Transaction> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(connectionFactory);
+		redisTemplate.setDefaultSerializer(serializer);
+		redisTemplate.afterPropertiesSet();
+		return redisTemplate;
 	}
 }
