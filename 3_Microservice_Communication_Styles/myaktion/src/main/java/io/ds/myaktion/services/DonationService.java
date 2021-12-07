@@ -13,8 +13,10 @@ import io.ds.myaktion.domain.Campaign;
 import io.ds.myaktion.domain.CampaignRepository;
 import io.ds.myaktion.domain.Donation;
 import io.ds.myaktion.domain.DonationRepository;
+import io.ds.myaktion.domain.Donation.Status;
 import io.ds.myaktion.dto.Transaction;
 import io.ds.myaktion.exceptions.CampaignNotFoundException;
+import io.ds.myaktion.exceptions.DonationNotFoundException;
 import io.lettuce.core.RedisCommandTimeoutException;
 
 @Service
@@ -31,15 +33,14 @@ public class DonationService {
 
     private Logger log = LoggerFactory.getLogger(DonationService.class);
 
-
-    /* 
-        Test the communication!
-        1. Start Redis server
-        2. Start myaktion-bank
-        3. Start myaktion --> Check log of myaktion-bank
-        Add futher donations to test functionality (curl/swagger)
-    
-    */
+    /*
+     * Test the communication!
+     * 1. Start Redis server
+     * 2. Start myaktion-bank
+     * 3. Start myaktion --> Check log of myaktion-bank
+     * Add futher donations to test functionality (curl/swagger)
+     * 
+     */
     public Donation addDonation(Donation donation, Long campaignId) {
         Optional<Campaign> result = campaignRepository.findById(campaignId);
         if (result.isEmpty()) {
@@ -78,23 +79,38 @@ public class DonationService {
         return existingCampaign.getDonations();
     }
 
+    // Will be used by the Redis receiver class!
+    public void changeDonationState(Long donationId) {
+        Optional<Donation> optional = donationRepository.findById(donationId);
+        if (optional.isPresent()) {
+            Donation donation = optional.get();
+            donation.setStatus(Status.TRANSFERRED);
+            donationRepository.save(donation);
+        } else {
+            throw new DonationNotFoundException("Can not find Donation with Id " + donationId);
+        }
+    }
+
     // private void sendReducedDonation(Donation donation) {
-    //     ReducedDonation reducedDonation = new ReducedDonation(donation);
-    //     HttpHeaders headers = new HttpHeaders();
-    //     headers.setContentType(MediaType.APPLICATION_JSON);
-    //     HttpEntity<ReducedDonation> entity = new HttpEntity<>(reducedDonation, headers);
-    //     log.info("Send Message object: " + reducedDonation);
-    //     RestTemplate restTemplate = new RestTemplate();
-    //     try {
-    //         ResponseEntity<String> response = restTemplate.postForEntity(URL_MYAKTION_MONITOR, entity, String.class);
-    //         if (response.getStatusCode().equals(HttpStatus.OK)) {
-    //             log.debug("Sent donation to myaktion-monitor successfully");
-    //         } else {
-    //             log.debug("Failed to send donation to myaktion-monitor. Http Status=" + response.getStatusCode());
-    //         }
-    //     } catch (RestClientException e) {
-    //         log.info("Failed to send donation to myaktion-monitor");
-    //         log.error("Exception received trying to send donation:", e);
-    //     }
+    // ReducedDonation reducedDonation = new ReducedDonation(donation);
+    // HttpHeaders headers = new HttpHeaders();
+    // headers.setContentType(MediaType.APPLICATION_JSON);
+    // HttpEntity<ReducedDonation> entity = new HttpEntity<>(reducedDonation,
+    // headers);
+    // log.info("Send Message object: " + reducedDonation);
+    // RestTemplate restTemplate = new RestTemplate();
+    // try {
+    // ResponseEntity<String> response =
+    // restTemplate.postForEntity(URL_MYAKTION_MONITOR, entity, String.class);
+    // if (response.getStatusCode().equals(HttpStatus.OK)) {
+    // log.debug("Sent donation to myaktion-monitor successfully");
+    // } else {
+    // log.debug("Failed to send donation to myaktion-monitor. Http Status=" +
+    // response.getStatusCode());
+    // }
+    // } catch (RestClientException e) {
+    // log.info("Failed to send donation to myaktion-monitor");
+    // log.error("Exception received trying to send donation:", e);
+    // }
     // }
 }
