@@ -6,6 +6,12 @@ public class ReducedDonation { // This class is needed in both services!
     private Double amount;
     private Long campaignId;
 
+    public ReducedDonation(ReducedDonation donation) {
+        this.donorName = donation.donorName;
+        this.amount = donation.amount;
+        this.campaignId = donation.campaignId;
+    }
+
     public String getDonorName() {
         return donorName;
     }
