@@ -34,4 +34,9 @@ public class MyaktionBankApplication {
 		return messageListenerAdapter;
 	}
 
+	@Bean
+	TransactionReceiver receiver() {
+		return new TransactionReceiver();
+	}
+
 }
