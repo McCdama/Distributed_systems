@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,9 @@ import io.ds.myaktion.domain.CampaignRepository;
 import io.ds.myaktion.domain.Donation;
 import io.ds.myaktion.domain.DonationRepository;
 import io.ds.myaktion.dto.ReducedDonation;
+import io.ds.myaktion.dto.Transaction;
 import io.ds.myaktion.exceptions.CampaignNotFoundException;
+import io.lettuce.core.RedisCommandTimeoutException;
 
 @Service
 public class DonationService {
@@ -31,9 +34,10 @@ public class DonationService {
     @Autowired
     private DonationRepository donationRepository;
 
-    private Logger log = LoggerFactory.getLogger(DonationService.class);
+    @Autowired
+    private RedisTemplate<String, Transaction> redisTemplate;
 
-    private static String URL_MYAKTION_MONITOR = "http://localhost:8081/donations";
+    private Logger log = LoggerFactory.getLogger(DonationService.class);
 
     public Donation addDonation(Donation donation, Long campaignId) {
         Optional<Campaign> result = campaignRepository.findById(campaignId);
@@ -46,8 +50,17 @@ public class DonationService {
         donation.setCampaign(existingCampaign);
         Donation savedDonation = donationRepository.save(donation);
         log.trace("Saved Donation: " + savedDonation.toString());
-        log.info("Sending donation to myaktion-monitor");
-        sendReducedDonation(donation);
+        // log.info("Sending donation to myaktion-monitor");
+        // sendReducedDonation(donation);
+        // create and send bank transaction
+        Transaction transaction = new Transaction();
+        transaction.setCampaignId(donation.getCampaign().getId());
+        transaction.setDonationId(donation.getId());
+        try {
+            redisTemplate.convertAndSend("processTransaction", transaction);
+        } catch (RedisCommandTimeoutException e) {
+            // Implement a retry mechanism.
+        }
         return savedDonation;
     }
 
@@ -64,23 +77,23 @@ public class DonationService {
         return existingCampaign.getDonations();
     }
 
-    private void sendReducedDonation(Donation donation) {
-        ReducedDonation reducedDonation = new ReducedDonation(donation);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<ReducedDonation> entity = new HttpEntity<>(reducedDonation, headers);
-        log.info("Send Message object: " + reducedDonation);
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            ResponseEntity<String> response = restTemplate.postForEntity(URL_MYAKTION_MONITOR, entity, String.class);
-            if (response.getStatusCode().equals(HttpStatus.OK)) {
-                log.debug("Sent donation to myaktion-monitor successfully");
-            } else {
-                log.debug("Failed to send donation to myaktion-monitor. Http Status=" + response.getStatusCode());
-            }
-        } catch (RestClientException e) {
-            log.info("Failed to send donation to myaktion-monitor");
-            log.error("Exception received trying to send donation:", e);
-        }
-    }
+    // private void sendReducedDonation(Donation donation) {
+    //     ReducedDonation reducedDonation = new ReducedDonation(donation);
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.setContentType(MediaType.APPLICATION_JSON);
+    //     HttpEntity<ReducedDonation> entity = new HttpEntity<>(reducedDonation, headers);
+    //     log.info("Send Message object: " + reducedDonation);
+    //     RestTemplate restTemplate = new RestTemplate();
+    //     try {
+    //         ResponseEntity<String> response = restTemplate.postForEntity(URL_MYAKTION_MONITOR, entity, String.class);
+    //         if (response.getStatusCode().equals(HttpStatus.OK)) {
+    //             log.debug("Sent donation to myaktion-monitor successfully");
+    //         } else {
+    //             log.debug("Failed to send donation to myaktion-monitor. Http Status=" + response.getStatusCode());
+    //         }
+    //     } catch (RestClientException e) {
+    //         log.info("Failed to send donation to myaktion-monitor");
+    //         log.error("Exception received trying to send donation:", e);
+    //     }
+    // }
 }
