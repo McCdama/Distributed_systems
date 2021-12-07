@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @SpringBootApplication
-
 public class MyaktionMonitorApplication {
 
 	public static void main(String[] args) {
@@ -21,7 +20,4 @@ public class MyaktionMonitorApplication {
 	public Set<SseEmitter> initEmitterSet() {
 	return Collections.synchronizedSet(new HashSet<SseEmitter>());
 	}
-
-	
-
 }
