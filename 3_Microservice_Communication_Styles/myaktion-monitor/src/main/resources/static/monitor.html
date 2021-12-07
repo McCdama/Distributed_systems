@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h1>Donation Monitor</h1>
+    <div id="result"></div>
+    <script>
+        if (typeof (EventSource) !== "undefined") {
+            var source = new EventSource("monitor");
+            source.onmessage = function (event) {
+                document.getElementById("result").innerHTML += event.data + "<br>";
+            };
+        } else {
+            document.getElementById("result").innerHTML = "No support server-sent events";
+        }
+    </script>
+</body>
+
+</html>
